@@ -8,6 +8,12 @@ jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    env:
+      BASE_URL: ${{ secrets.BASE_URL }}
+      VALID_USER: ${{ secrets.VALID_USER }}
+      VALID_PASSWORD: ${{ secrets.VALID_PASSWORD }}
+      INVALID_USER: ${{ secrets.INVALID_USER }}
+      INVALID_PASSWORD: ${{ secrets.INVALID_PASSWORD }}
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-node@v4
@@ -19,12 +25,17 @@ jobs:
       run: npx playwright install --with-deps
     - name: Run Playwright tests
       run: npx playwright test
-      env:
-        BASE_URL: ${{ secrets.BASE_URL }}
-        VALID_USER: ${{ secrets.VALID_USER }}
-        VALID_PASSWORD: ${{ secrets.VALID_PASSWORD }}
-        INVALID_USER: ${{ secrets.INVALID_USER }}
-        INVALID_PASSWORD: ${{ secrets.INVALID_PASSWORD }}
+    - name: Debug env presence
+      run: |
+        echo "BASE_URL present: $(if [ -z \"$BASE_URL\" ]; then echo no; else echo yes; fi)"
+        echo "VALID_USER present: $(if [ -z \"$VALID_USER\" ]; then echo no; else echo yes; fi)"
+        if [ -z "$BASE_URL" ] || [ -z "$VALID_USER" ]; then
+          echo "Required secrets are missing; failing for debug."
+          exit 1
+        fi
+
+    - name: Run Playwright tests
+      run: npx playwright test
 
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
