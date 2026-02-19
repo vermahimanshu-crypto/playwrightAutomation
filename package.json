@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "npx playwright test --headed --reporter=html --workers=1"
+    "test": "npx playwright test --reporter=html",
+    "test:headed": "npx playwright test --headed --reporter=html --workers=1",
+    "test:ui": "npx playwright test --headed --ui --reporter=html --workers=1"
   },
   "keywords": [],
   "author": "",

@@ -1,39 +1,21 @@
-import { test, expect } from '@playwright/test';
-import { LoginPage } from '../src/pages/LoginPage';
+import { test, expect } from "../src/fixtures/auth.fixture";
 import { ProductsPage } from '../src/pages/ProductsPage';
-import { CartPage } from '../src/pages/CartPage';
 import { CheckoutPage } from '../src/pages/CheckoutPage';
 
-let loginPage: LoginPage;
-let products: ProductsPage;
-let cart: CartPage;
-let checkout: CheckoutPage;
 
-  test.beforeEach(async ({ page }) => {
-    loginPage = new LoginPage(page);
-    products = new ProductsPage(page);
-    cart = new CartPage(page);
-    checkout = new CheckoutPage(page);
+test('Checkout happy path', async ({ loggedInPage }) => {
+  const productsPage = new ProductsPage(loggedInPage);
+  const checkoutPage = new CheckoutPage(loggedInPage);
 
-    await loginPage.goto();
-    await loginPage.login(
-      process.env.VALID_USER!,
-      process.env.VALID_PASSWORD!
-    );
+    await productsPage.addProductByName('Sauce Labs Backpack');
+    await productsPage.addProductByName('Sauce Labs Bike Light');
 
-    await expect(page).toHaveURL(/inventory/);
-  });
+    await productsPage.goToCart();
+    await checkoutPage.clickCheckout();
 
-test('Checkout happy path', async ({ page }) => {
-    await products.addProductByName('Sauce Labs Backpack');
-    await products.addProductByName('Sauce Labs Bike Light');
+    await checkoutPage.fillInformation('Himanshu', 'Verma', '12345');
+    await checkoutPage.verifyOverviewPage();
 
-    await products.goToCart();
-    await checkout.clickCheckout();
-
-    await checkout.fillInformation('Himanshu', 'Verma', '12345');
-    await checkout.verifyOverviewPage();
-
-    await checkout.finishCheckout();
-    await checkout.verifySuccessMessage();
+    await checkoutPage.finishCheckout();
+    await checkoutPage.verifySuccessMessage();
 });

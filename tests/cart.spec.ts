@@ -1,26 +1,12 @@
-import { test, expect } from '@playwright/test';
-import { LoginPage } from '../src/pages/LoginPage';
+import { test, expect } from "../src/fixtures/auth.fixture";
 import { ProductsPage } from '../src/pages/ProductsPage';
 import { CartPage } from '../src/pages/CartPage';
 
 test.describe('Cart Tests', () => {
 
-  let loginPage: LoginPage;
-  test.beforeEach(async ({ page }) => {
-    loginPage = new LoginPage(page);
-
-    await loginPage.goto();
-    await loginPage.login(
-      process.env.VALID_USER!,
-      process.env.VALID_PASSWORD!
-    );
-
-    await expect(page).toHaveURL(/inventory/);
-  });
-
-  test('Add two products to cart and validate', async ({ page }) => {
-    const productsPage = new ProductsPage(page);
-    const cartPage = new CartPage(page);
+  test('Add two products to cart and validate', async ({ loggedInPage }) => {
+    const productsPage = new ProductsPage(loggedInPage);
+    const cartPage = new CartPage(loggedInPage);
 
     await productsPage.addProductByName('Sauce Labs Backpack');
     await productsPage.addProductByName('Sauce Labs Bike Light');
@@ -32,9 +18,9 @@ test.describe('Cart Tests', () => {
     await cartPage.validateItemPresent('Sauce Labs Bike Light');
   });
 
-  test('Remove item updates cart count', async ({ page }) => {
-    const productsPage = new ProductsPage(page);
-    const cartPage = new CartPage(page);
+  test('Remove item updates cart count', async ({ loggedInPage }) => {
+    const productsPage = new ProductsPage(loggedInPage);
+    const cartPage = new CartPage(loggedInPage);
 
     await productsPage.addProductByName('Sauce Labs Backpack');
     await productsPage.goToCart();

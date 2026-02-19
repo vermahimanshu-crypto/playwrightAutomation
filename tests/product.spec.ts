@@ -1,42 +1,29 @@
-import { test, expect } from '@playwright/test';
-import { LoginPage } from '../src/pages/LoginPage';
+import { test, expect } from "../src/fixtures/auth.fixture";
 import { ProductsPage } from '../src/pages/ProductsPage';
 
 test.describe('Products Page Tests', () => {
 
-    let loginPage: LoginPage;
-    let productsPage: ProductsPage;
-    test.beforeEach(async ({ page }) => {
-    loginPage = new LoginPage(page);
-    productsPage = new ProductsPage(page);
-    await loginPage.goto();
-    await loginPage.login(
-      process.env.VALID_USER!,
-      process.env.VALID_PASSWORD!
-    );
-  });
-
-  test('Add two products to cart and validate', async ({ page }) => {
-
+  test('Add two products to cart and validate', async ({ loggedInPage }) => {
+    const productsPage = new ProductsPage(loggedInPage);
     await productsPage.addProductByName('Sauce Labs Backpack');
     await productsPage.addProductByName('Sauce Labs Bike Light');
 
     await productsPage.goToCart();
 
-    const cartItems = page.locator('.cart_item');
+    const cartItems = loggedInPage.locator('.cart_item');
     await expect(cartItems).toHaveCount(2);
 
-    await expect(page.locator('.inventory_item_name', {
+    await expect(loggedInPage.locator('.inventory_item_name', {
       hasText: 'Sauce Labs Backpack',
     })).toBeVisible();
 
-    await expect(page.locator('.inventory_item_name', {
+    await expect(loggedInPage.locator('.inventory_item_name', {
       hasText: 'Sauce Labs Bike Light',
     })).toBeVisible();
   });
 
-  test('Sort products by price low to high', async ({ page }) => {
-    const productsPage = new ProductsPage(page);
+  test('Sort products by price low to high', async ({ loggedInPage }) => {
+    const productsPage = new ProductsPage(loggedInPage);
 
     await productsPage.sortBy('lohi');
 
